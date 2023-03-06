@@ -12,6 +12,7 @@ export const userSchema = new mongoose.Schema(
 );
 
 export class User {
+    _id: String
     login:  String
     email : String 
     password: String

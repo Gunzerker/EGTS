@@ -6,6 +6,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
+import { GetUser } from 'src/decorators/decorator.user';
+import { User } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -26,6 +28,14 @@ export class UsersController {
   findAll() {
     return this.usersService.findAll();
   }
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('/my-jobs')
+  fetchMyJobs(@GetUser() user: User,
+  ) {
+    return this.usersService.fetchMyJobs(user);
+  }
+  
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {

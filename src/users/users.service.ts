@@ -2,6 +2,7 @@ import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AuthService } from 'src/auth/auth.service';
+import { Job } from 'src/back-office/entities/job.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -12,7 +13,8 @@ import { User } from './entities/user.entity';
 export class UsersService {
   constructor (    
     @InjectModel(User.name) private readonly userModel: Model<User>,
-    @InjectModel(Admin.name) private readonly adminModel: Model<User>,
+    @InjectModel(Admin.name) private readonly adminModel: Model<Admin>,
+    @InjectModel(Job.name) private readonly jobModel: Model<Job>,
     @Inject(forwardRef(() => AuthService))
     private readonly authService: AuthService,
   ) {}
@@ -65,6 +67,15 @@ export class UsersService {
 
   login (loginUserDto: LoginUserDto) {
     return this.authService.login(loginUserDto)
+  }
+
+  async fetchMyJobs (user:User) {
+    const jobs = await this.jobModel.find({assignedTo:{$in:[user._id]}}).populate("assignedTo").sort({start_date:-1})
+    return {
+      statusCode: 200,
+      message: 'API.JOBS_FETCHED',
+      data: jobs,
+    } 
   }
 
 }
